@@ -2,6 +2,10 @@ import MeCab
 import sys
 import re
 import collections
+import pandas as pd
+import matplotlib.pyplot as plt
+    
+from matplotlib import font_manager as fm, rc
 
 if __name__ == '__main__' : 
     # ファイル読み込み
@@ -10,6 +14,7 @@ if __name__ == '__main__' :
 
     prev_line = []
     date = ""
+    full_data = []
     for line in data:
         line = line.split('\t')
 
@@ -20,24 +25,49 @@ if __name__ == '__main__' :
         if len(line) == 2 : continue
 
         # Store the date info
-        if   '2015' in line[0] : date = line[0].replace("\n",""); continue
-        elif '2016' in line[0] : date = line[0].replace("\n",""); continue
-        elif '2017' in line[0] : date = line[0].replace("\n",""); continue
-        elif '2018' in line[0] : date = line[0].replace("\n",""); continue
-        elif '2019' in line[0] : date = line[0].replace("\n",""); continue
-        elif '2020' in line[0] : date = line[0].replace("\n",""); continue
+        if re.fullmatch(".*\/.*\/.*\(.*\)\n", line[0]) is not None: 
+            date = line[0].replace("\n","")
+            continue
 
         # Save the previous texts
         if   len(line) == 3 : 
             line.insert(0, date)
             prev_line = line
-            print(line)
+            
+            full_data.append(line)
 
         elif len(prev_line) == 4 and len(line) == 1 :
             line.insert(0, date)
             line.insert(1, prev_line[1])
             line.insert(2, prev_line[2])
-            print(line)
+            
+            full_data.append(line)
+
+    # Count
+    ## Create the data frame using pandas.DataFrame
+    df = pd.DataFrame(data=full_data, columns=["date", "time", "name", "content"])
+    print(df)
+
+    print((df["name"] == "Keisuke Ogawa").sum())
+    print((df["name"] == "Kosuke Takeda").sum())
+    print((df["name"] == "又吉康平").sum())
+    print(df["date"])
+    print(df["date"].value_counts(sort=False))
+    vc = df["date"].value_counts().sort_index()
+    print(vc)
+
+    font  = fm.FontProperties(fname="/System/Library/Fonts/ヒラギノ角ゴシック W2.ttc")
+#
+#    for var in ("date", "name"):
+#        plt.figure(figsize=(50,10))
+#        df[var].value_counts().plot(kind='bar')
+#        plt.xticks(fontproperties=font)
+#        plt.savefig("ranking_{}.png".format(var))
+#
+    plt.figure(figsize=(50,10))
+    df["date"].value_counts().sort_index().plot(kind='bar')
+    plt.xticks(rotation=90, fontproperties=font)
+    plt.savefig("hist.png")
 
     exit(1)
     
@@ -53,9 +83,6 @@ if __name__ == '__main__' :
         print("{} {}".format(word, count))
         results[word] = count
     
-    import matplotlib
-    from matplotlib import font_manager as fm, rc
-    import matplotlib.pyplot as plt
     
     x = []
     y = []
