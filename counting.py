@@ -3,8 +3,8 @@ import sys
 import re
 import collections
 import pandas as pd
+
 import matplotlib.pyplot as plt
-    
 from matplotlib import font_manager as fm, rc
 
 if __name__ == '__main__' : 
@@ -25,6 +25,7 @@ if __name__ == '__main__' :
         if len(line) == 2 : continue
 
         # Store the date info
+        ## ex. 2020/05/19(火) --> OK
         if re.fullmatch(".*\/.*\/.*\(.*\)\n", line[0]) is not None: 
             date = line[0].replace("\n","")
             continue
@@ -64,10 +65,40 @@ if __name__ == '__main__' :
 #        plt.xticks(fontproperties=font)
 #        plt.savefig("ranking_{}.png".format(var))
 #
-    plt.figure(figsize=(50,10))
-    df["date"].value_counts().sort_index().plot(kind='bar')
-    plt.xticks(rotation=90, fontproperties=font)
-    plt.savefig("hist.png")
+    
+    df_ogawa     = df[df["name"] == 'Keisuke Ogawa']
+    df_takeda    = df[df["name"] == 'Kosuke Takeda']
+    df_matayoshi = df[df["name"] == '又吉康平']
+    
+    data_ogawa     = df_ogawa["date"].value_counts().sort_index()
+    data_takeda    = df_takeda["date"].value_counts().sort_index()
+    data_matayoshi = df_matayoshi["date"].value_counts().sort_index()
+    
+    data_merged    = pd.concat([data_ogawa, data_takeda, data_matayoshi], axis=1)
+    print("***************")
+    print(data_ogawa)
+    print(data_takeda)
+    print(data_matayoshi)
+    print(data_merged)
+    df_merged = pd.DataFrame({'Ogawaman': data_ogawa, 'Takeda': data_takeda, 'Matayo' : data_matayoshi})
+
+    fig, axis = plt.subplots(figsize=(45,20))
+    df_merged.plot(
+            ax=axis,
+            kind='bar', 
+            width=1.0, 
+            stacked=True,
+            )
+
+    axis.set_xlabel('日時'  , fontproperties=font, fontsize=40)
+    axis.set_xlabel('日時'  , fontproperties=font, fontsize=40)
+    axis.set_ylabel('発言数', fontproperties=font, fontsize=40)
+    axis.set_title('LINEテキスト分析', fontproperties=font,fontsize=50 )
+
+    plt.xticks(fontproperties=font, fontsize=5)
+    plt.yticks(fontproperties=font, fontsize=18)
+    plt.legend(fontsize=50)
+    fig.savefig("hist.png", dpi=300)
 
     exit(1)
     
