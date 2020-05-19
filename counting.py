@@ -5,8 +5,41 @@ import collections
 
 if __name__ == '__main__' : 
     # ファイル読み込み
-    with open("LINE.txt") as f:
-        data = f.read()
+    with open("line_pomatti.txt") as f:
+        data = f.readlines()
+
+    prev_line = []
+    date = ""
+    for line in data:
+        line = line.split('\t')
+
+        # Remove \n
+        if line[0] == '\n' : continue
+
+        # Remove the action information
+        if len(line) == 2 : continue
+
+        # Store the date info
+        if   '2015' in line[0] : date = line[0].replace("\n",""); continue
+        elif '2016' in line[0] : date = line[0].replace("\n",""); continue
+        elif '2017' in line[0] : date = line[0].replace("\n",""); continue
+        elif '2018' in line[0] : date = line[0].replace("\n",""); continue
+        elif '2019' in line[0] : date = line[0].replace("\n",""); continue
+        elif '2020' in line[0] : date = line[0].replace("\n",""); continue
+
+        # Save the previous texts
+        if   len(line) == 3 : 
+            line.insert(0, date)
+            prev_line = line
+            print(line)
+
+        elif len(prev_line) == 4 and len(line) == 1 :
+            line.insert(0, date)
+            line.insert(1, prev_line[1])
+            line.insert(2, prev_line[2])
+            print(line)
+
+    exit(1)
     
     # パース
     mecab = MeCab.Tagger("-Owakati")
