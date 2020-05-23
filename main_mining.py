@@ -30,7 +30,6 @@ if __name__ == "__main__":
         for word in words:
             if word not in stop_words:
                 full_list_wo_sword.append(word)
-
     
     # Counting
     coll = collections.Counter(full_list_wo_sword)
@@ -55,10 +54,40 @@ if __name__ == "__main__":
     vc = df["date"].value_counts().sort_index()
     print(vc)
 
+
     font  = fm.FontProperties(fname="/System/Library/Fonts/ヒラギノ角ゴシック W2.ttc")
     rcParams["font.family"] = font.get_name()
    
-#    for year in ('2016', '2017', '2018', '2019', '2020'):
+    
+    width=0.3
+    #for year in ('2016', '2017', '2018', '2019', '2020'):
+    hist_data = {}
+    for name in ('Keisuke Ogawa', 'Kosuke Takeda', '又吉康平'):
+        df_all = df[ df['name'] == name ]
+      
+        list_ = []
+        for year in ('2016', '2017', '2018', '2019', '2020' ):
+            list_.append( len( df_all[ df['date'].str.startswith(year) ] ) )
+
+        hist_data[name] = list_
+
+        #df_all["date"].hist(bins=5, histtype="step", label='{}'.format(name))
+        #df_all["name"].value_counts().plot(kind='bar', label='{}'.format(year))
+        
+        plt.plot(['2016','2017','2018','2019','2020'], hist_data[name], label=name)
+   
+    print(hist_data)
+    plt.grid(False)
+    plt.legend()
+    plt.savefig("name.png", dpi=300)
+    plt.yscale('log')
+    plt.legend()
+    plt.savefig("name_log.png", dpi=300)
+
+    exit(1)
+
+
+
     for year in ('20', ):
 
         df_ogawa     = df[ ( df["name"] == 'Keisuke Ogawa') & ( df['date'].str.contains(year) ) ]
